@@ -16,25 +16,29 @@ const fetchPokemon = async (pokemon) => {
     `https://pokeapi.co/api/v2/pokemon/${pokemon}`
   );
   if (APIResponse.status == 200) {
-    const data = APIResponse.json();
+    const data = await APIResponse.json();
     return data;
   }
 };
 
 // Visualizamos a los pokemon
+// Visualizamos a los pokemon
 const renderPokemon = async (pokemon) => {
-  //Mostramos el nombre antes de buscar
+  // Mostramos el nombre antes de buscar
   NombrePokemon.innerHTML = "Cargando...";
   NumeroPokemon.innerHTML = "";
 
   const data = await fetchPokemon(pokemon);
 
-  //Conectamos los elementos con el codigo superior
+  // Conectamos los elementos con el código superior
   if (data) {
-    NombrePokemon.innerHTML = data.name;
+    // Tomar solo la parte del nombre antes del guion, si existe
+    const nombreLimpio = data.name.split("-")[0];
+    NombrePokemon.innerHTML = nombreLimpio;
     NumeroPokemon.innerHTML = data.id;
     ImagenPokemon.style.display = "block";
-    ImagenPokemon.src = data["sprites"]["versions"]["generation-v"]["black-white"]["animated"]["front_default"];
+    ImagenPokemon.src =
+      data["sprites"]["versions"]["generation-v"]["black-white"]["animated"]["front_default"];
     input.value = "";
     BuscarPokemon = data.id;
   } else {
@@ -44,25 +48,39 @@ const renderPokemon = async (pokemon) => {
   }
 };
 
-//Para que la barra de búsqueda pueda buscar el nombre o el id
+
+// Para que la barra de búsqueda pueda buscar el nombre o el ID
 form.addEventListener("submit", (event) => {
   event.preventDefault();
-  renderPokemon(input.value.toLowerCase());
-});
+  const pokemon = input.value.toLowerCase();
 
-//Boton anterior
-buttonAnt.addEventListener("click", () => {
-  if (BuscarPokemon > 1) {
-    BuscarPokemon -= 1;
-    renderPokemon(BuscarPokemon);
+  if (isNaN(pokemon) || (pokemon >= 1 && pokemon <= 649)) {
+    renderPokemon(pokemon);
+  } else {
+    NombrePokemon.innerHTML = "Fuera de rango (1-649)";
+    NumeroPokemon.innerHTML = "";
+    ImagenPokemon.style.display = "none";
   }
 });
 
-//Boton siguiente
-buttonSig.addEventListener("click", () => {
-  BuscarPokemon += 1;
+// Botón anterior
+buttonAnt.addEventListener("click", () => {
+  if (BuscarPokemon > 1) {
+    BuscarPokemon -= 1;
+  } else {
+    BuscarPokemon = 649; // Si estás en el primer Pokémon, ir al último.
+  }
   renderPokemon(BuscarPokemon);
 });
 
-//Hacer aparecer el primer pokemon
+buttonSig.addEventListener("click", () => {
+  if (BuscarPokemon < 649) {
+    BuscarPokemon += 1;
+  } else {
+    BuscarPokemon = 1; // Si estás en el último Pokémon, ir al primero.
+  }
+  renderPokemon(BuscarPokemon);
+});
+
+// Hacer aparecer el primer Pokémon
 renderPokemon(BuscarPokemon);

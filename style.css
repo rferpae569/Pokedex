@@ -33,6 +33,7 @@ main {
     left: 50%;
     transform: translate(-63%, 20%);
     height: 18%;
+    width: 22%;
 }
 
 .pokemon_data{
